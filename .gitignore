@@ -1,0 +1,16 @@
+# Terraform local state and working directories
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfplan
+terraform.rc
+.terraformrc
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
