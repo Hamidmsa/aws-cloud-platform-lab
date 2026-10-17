@@ -62,3 +62,29 @@ jobs:
 
       - name: Scan Terraform configuration
         run: checkov -d terraform --framework terraform
+
+  plan:
+    name: Terraform Plan (no apply)
+    runs-on: ubuntu-latest
+    # Fail closed until remote state and AWS OIDC are explicitly configured.
+    if: (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch') && vars.TERRAFORM_PLAN_ENABLED == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-central-1
+      - name: Initialize Terraform
+        run: terraform init -input=false
+      - name: Create execution plan (no apply)
+        run: terraform plan -input=false -no-color
